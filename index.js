@@ -1,8 +1,15 @@
 const express = require('express');
 const graphqlHTTP = require('express-graphql');
 const { buildSchema } = require('graphql');
-const DB = require('./driver');
-// let db = new DB();
+
+const MongoClient = require('mongodb').MongoClient;
+const uri = "mongodb+srv://hirdbluebird:********@cluster0-3nyyj.mongodb.net/";
+const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+let connection;
+client.connect(err => {
+	if(!err) console.log(`DB connection established`)
+	collection = client.db("hackernoon-subscribers").collection("subscribers");
+})
 
 class Subscriber {
 	constructor(email, name) {
@@ -11,21 +18,31 @@ class Subscriber {
 	}
 }
 
-
 // The root provides a resolver function for each API endpoint
 var root = {
-  getSubscriber: (email) => {
-
+  getSubscriber: async (email) => {
+		const data = await collection.findOne(email)
+		if (data) return new Subscriber(data.email, data.name);
   },
-  createSubscriber: ({email, name}) => {
-		// console.log(DB)
-		return DB.insertOne()
+  createSubscriber: async ({email, name}) => {
+		const data = await collection.insertOne({email, name})
+			.then(result => {
+					console.log(`driver: successfuly inserted ${result.insertedId}`)
+					return result.ops[0];
+			})
+			.catch(error => {
+					throw new Error(error)
+					return null;
+			})
+		console.log(data)
+		if (data) return new Subscriber(data.email, data.name);
   },
 };
 
 // Construct a schema, using GraphQL schema language
 var schema = buildSchema(`
 	type Subscriber {
+		_id: String!
 		email: String!
 		name: String
 	}
