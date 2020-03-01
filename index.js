@@ -1,8 +1,8 @@
 const express = require('express');
 const graphqlHTTP = require('express-graphql');
 const { buildSchema } = require('graphql');
-
-var fakeDatabase = {};
+const DB = require('./driver');
+// let db = new DB();
 
 class Subscriber {
 	constructor(email, name) {
@@ -15,17 +15,11 @@ class Subscriber {
 // The root provides a resolver function for each API endpoint
 var root = {
   getSubscriber: (email) => {
-  	if (fakeDatabase[email]) {
-  		return fakeDatabase[email]
-  	}
-  	return 'No user found';
+
   },
   createSubscriber: ({email, name}) => {
-    fakeDatabase.email = {
-    	'email': email,
-    	'name': name
-    }
-    return new Subscriber(email, name);
+		// console.log(DB)
+		return DB.insertOne()
   },
 };
 
@@ -39,7 +33,7 @@ var schema = buildSchema(`
     getSubscriber(email: String!): Subscriber
   }
   type Mutation {
-  	createSubscriber(email: String!, name: String): Subscriber
+		createSubscriber(email: String!, name: String): Subscriber
   }
 `);
 
