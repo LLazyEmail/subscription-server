@@ -19,7 +19,7 @@
   "homepage": "https://github.com/hirdbluebird/subscription-server#readme",
   "dependencies": {
     "express": "^4.17.1",
-    "express-graphql": "^0.9.0",
+    "express-graphql": "^0.12.0",
     "graphql": "^15.0.0",
     "mongodb": "^3.5.3"
   }
